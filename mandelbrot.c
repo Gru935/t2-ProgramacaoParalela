@@ -5,7 +5,7 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define MAX_ITER 1000
+#define MAX_ITER 100000
 
 #define TAG_TASK 1
 #define TAG_RESULT 2
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
 
     int rank, size;
+    double start, end;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
 
     if (rank == 0)
     {
+        start = MPI_Wtime();
 
         int *image = malloc(sizeof(int) * WIDTH * HEIGHT);
 
@@ -176,11 +178,14 @@ int main(int argc, char *argv[])
             }
         }
 
+        end = MPI_Wtime();
+
         save_ppm("mandelbrot.ppm", image);
 
         free(image);
 
         printf("Imagem salva em mandelbrot.ppm\n");
+        printf("Tempo total: %f segundos\n", end - start);
     }
 
     // =========================
