@@ -5,7 +5,7 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define MAX_ITER 100000
+#define MAX_ITER 10000
 
 #define TAG_TASK 1
 #define TAG_RESULT 2
