@@ -18,7 +18,7 @@ typedef struct
     int num_rows;
 } Task;
 
-int mandelbrot(double real, double imag)
+int mandelbrot(double real, double imag, int max_iter)
 {
     double z_real = 0.0;
     double z_imag = 0.0;
@@ -26,7 +26,7 @@ int mandelbrot(double real, double imag)
     int iter = 0;
 
     while ((z_real * z_real + z_imag * z_imag <= 4.0) &&
-           iter < MAX_ITER)
+           iter < max_iter)
     {
         double temp = z_real * z_real - z_imag * z_imag + real;
 
@@ -39,7 +39,7 @@ int mandelbrot(double real, double imag)
     return iter;
 }
 
-void save_ppm(const char *filename, int *image)
+void save_ppm(const char *filename, int *image, int max_iter)
 {
     FILE *fp = fopen(filename, "w");
 
@@ -55,7 +55,7 @@ void save_ppm(const char *filename, int *image)
 
     for (int i = 0; i < WIDTH * HEIGHT; i++)
     {
-        int color = (image[i] * 255) / MAX_ITER;
+        int color = (image[i] * 255) / max_iter;
 
         fprintf(fp, "%d %d %d ",
                 color,
@@ -71,6 +71,13 @@ void save_ppm(const char *filename, int *image)
 
 int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    int max_iter = atoi(argv[1]);
+
     MPI_Init(&argc, &argv);
 
     int rank, size;
@@ -201,7 +208,7 @@ int main(int argc, char *argv[])
 
         end = MPI_Wtime();
 
-        save_ppm("mandelbrot.ppm", image);
+        save_ppm("mandelbrot.ppm", image, max_iter);
 
         free(image);
 
@@ -259,7 +266,7 @@ int main(int argc, char *argv[])
                     double real = -2.5 + (3.5 * x / WIDTH);
                     double imag = -1.0 + (2.0 * y / HEIGHT);
 
-                    int iter = mandelbrot(real, imag);
+                    int iter = mandelbrot(real, imag, max_iter);
 
                     buffer[row * WIDTH + x] = iter;
                 }
