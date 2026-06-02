@@ -29,14 +29,14 @@ def base(ax):
     ax.set_xlim(0, 32)
 
 # Fig 1: strong speedup
-fig, ax = plt.subplots(figsize=(4.2, 3.0))
+fig, ax = plt.subplots(figsize=(4.2, 2.7))
 ax.plot([0,31],[0,31], ls="--", color="gray", label="Ideal (linear)")
 ax.plot(strong_w, strong_sp, "o-", color=BLUE, ms=4, label="Medido")
 ax.set_ylabel("Speed-up"); ax.set_title("Speed-up forte"); base(ax); ax.legend(fontsize=8)
 fig.tight_layout(); fig.savefig(f"{OUT}/fig_strong_speedup.png", dpi=150); plt.close(fig)
 
 # Fig 2: strong efficiency
-fig, ax = plt.subplots(figsize=(4.2, 3.0))
+fig, ax = plt.subplots(figsize=(4.2, 2.7))
 ax.axhline(1.0, ls="--", color="gray", label="Ideal (1,0)")
 ax.plot(strong_w, strong_eff, "s-", color=ORANGE, ms=4, label="Medido")
 ax.set_ylabel("Eficiencia"); ax.set_title("Eficiencia (escala forte)")
@@ -44,18 +44,18 @@ ax.set_ylim(0, 1.1); base(ax); ax.legend(fontsize=8)
 fig.tight_layout(); fig.savefig(f"{OUT}/fig_strong_eff.png", dpi=150); plt.close(fig)
 
 # Fig 3: weak speedup
-fig, ax = plt.subplots(figsize=(4.2, 3.0))
+fig, ax = plt.subplots(figsize=(4.2, 2.7))
 ax.plot([0,31],[0,31], ls="--", color="gray", label="Ideal (linear)")
 ax.plot(weak_w, weak_sp, "o-", color=GREEN, ms=4, label="Medido")
 ax.set_ylabel("Speed-up"); ax.set_title("Speed-up fraco"); base(ax); ax.legend(fontsize=8)
 fig.tight_layout(); fig.savefig(f"{OUT}/fig_weak_speedup.png", dpi=150); plt.close(fig)
 
-# Fig 4: weak time (deve permanecer ~constante)
-fig, ax = plt.subplots(figsize=(4.2, 3.0))
-ax.plot(weak_w, weak_time, "D-", color=BLUE, ms=4, label="Tempo paralelo")
-ax.axhline(weak_time[0], ls="--", color="gray", label="Ideal (constante)")
-ax.set_ylabel("Tempo (s)"); ax.set_title("Escala fraca: tempo de execucao")
-ax.set_ylim(0, 20); base(ax); ax.legend(fontsize=8)
-fig.tight_layout(); fig.savefig(f"{OUT}/fig_weak_time.png", dpi=150); plt.close(fig)
+# Fig 4: weak efficiency
+fig, ax = plt.subplots(figsize=(4.2, 2.7))
+ax.axhline(1.0, ls="--", color="gray", label="Ideal (1,0)")
+ax.plot(weak_w, weak_eff, "s-", color=ORANGE, ms=4, label="Medido")
+ax.set_ylabel("Eficiencia"); ax.set_title("Eficiencia (escala fraca)")
+ax.set_ylim(0, 1.1); base(ax); ax.legend(fontsize=8)
+fig.tight_layout(); fig.savefig(f"{OUT}/fig_weak_eff.png", dpi=150); plt.close(fig)
 
 print("figuras geradas")

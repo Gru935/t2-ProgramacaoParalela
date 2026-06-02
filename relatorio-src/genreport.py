@@ -28,15 +28,25 @@ strong = [
     (13,"1,067153","10,18","0,783"),(14,"1,033584","10,51","0,751"),
     (15,"1,011426","10,74","0,716"),(31,"0,537922","20,19","0,651"),
 ]
+# Escala fraca: carga (iteracoes) cresce com N (10000 x N).
+# Colunas: N | iteracoes | T_seq (1 trab, mesma carga) | T_par (N trab) | speed-up | efic.
 weak = [
-    (1,"10,785180","1,00","1,000"),(2,"11,220187","1,93","0,963"),
-    (3,"12,804295","2,51","0,837"),(4,"13,448854","3,18","0,796"),
-    (5,"13,074383","4,09","0,818"),(6,"12,586510","5,09","0,849"),
-    (7,"13,399998","5,59","0,798"),(8,"13,823886","6,18","0,773"),
-    (9,"13,787825","6,97","0,775"),(10,"14,119740","7,57","0,757"),
-    (11,"14,559463","8,08","0,734"),(12,"14,021968","9,15","0,762"),
-    (13,"14,563222","9,53","0,733"),(14,"14,665052","10,19","0,728"),
-    (15,"15,440807","10,37","0,691"),(31,"16,232599","20,39","0,658"),
+    (1,"10 000","10,785180","10,785180","1,00","1,000"),
+    (2,"20 000","21,619147","11,220187","1,93","0,963"),
+    (3,"30 000","32,166256","12,804295","2,51","0,837"),
+    (4,"40 000","42,830965","13,448854","3,18","0,796"),
+    (5,"50 000","53,457709","13,074383","4,09","0,818"),
+    (6,"60 000","64,121763","12,586510","5,09","0,849"),
+    (7,"70 000","74,882335","13,399998","5,59","0,798"),
+    (8,"80 000","85,451648","13,823886","6,18","0,773"),
+    (9,"90 000","96,108554","13,787825","6,97","0,775"),
+    (10,"100 000","106,908125","14,119740","7,57","0,757"),
+    (11,"110 000","117,604979","14,559463","8,08","0,734"),
+    (12,"120 000","128,285353","14,021968","9,15","0,762"),
+    (13,"130 000","138,796631","14,563222","9,53","0,733"),
+    (14,"140 000","149,453555","14,665052","10,19","0,728"),
+    (15,"150 000","160,104948","15,440807","10,37","0,691"),
+    (31,"310 000","331,002648","16,232599","20,39","0,658"),
 ]
 
 def table(rows, cap):
@@ -44,6 +54,14 @@ def table(rows, cap):
     body = "".join(
         f"<tr><td>{w}</td><td>{t}</td><td>{s}</td><td>{e}</td></tr>"
         for (w,t,s,e) in rows)
+    return f'<table class="data"><caption>{cap}</caption>{head}{body}</table>'
+
+def table_weak(rows, cap):
+    head = ("<tr><th>Trab.</th><th>Iterações</th><th>T<sub>seq</sub> (1 trab.)</th>"
+            "<th>T<sub>par</sub> (N trab.)</th><th>Speed-up</th><th>Efic.</th></tr>")
+    body = "".join(
+        f"<tr><td>{w}</td><td>{it}</td><td>{ts}</td><td>{tp}</td><td>{s}</td><td>{e}</td></tr>"
+        for (w,it,ts,tp,s,e) in rows)
     return f'<table class="data"><caption>{cap}</caption>{head}{body}</table>'
 
 analysis = """
@@ -101,11 +119,13 @@ naturalmente a forte irregularidade de custo entre as linhas do Mandelbrot.
 Blocos de 10 linhas equilibram overhead de mensagens e granularidade. O
 resultado determinístico confirma que a ordem é mantida apesar do
 não-determinismo de chegada.</p>
-<p><b>Escala fraca.</b> Idealmente o tempo permaneceria constante ao escalar
-carga e trabalhadores juntos. O tempo medido sobe pouco (10,8 s &rarr; 16,2 s
-de 1 a 31 trab.) e a eficiência fraca cai de 1,0 para 0,66 — boa
-escalabilidade fraca, com a mesma degradação suave atribuída ao gargalo do
-coordenador e à comunicação.</p>
+<p><b>Escala fraca.</b> Mantendo a carga por trabalhador constante (MAX_ITER
+cresce com N), a eficiência ideal seria 1,0. A eficiência fraca medida cai
+suavemente de 1,0 para 0,66 (1&rarr;31 trab.), indicando <b>boa
+escalabilidade fraca</b>: a aplicação acompanha o aumento simultâneo de carga
+e de trabalhadores. A degradação suave decorre do mesmo gargalo de
+serialização no coordenador e do overhead de comunicação observados na escala
+forte.</p>
 
 <h2>5. Conclusão</h2>
 <p>O modelo coordenador/trabalhador com iniciativa dos trabalhadores forneceu
@@ -134,8 +154,9 @@ code {{ font-family: "DejaVu Sans Mono", monospace; font-size: 8pt;
 section.page {{ break-before: page; }}
 h2.annex {{ font-size: 12pt; text-align:center; border-bottom:1px solid #999;
         margin-bottom:8px; }}
-.grid2 {{ display:grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }}
-table.data {{ border-collapse: collapse; width:100%; font-size:7.6pt; }}
+.tables {{ display:grid; grid-template-columns: 0.78fr 1.22fr; gap: 0 12px;
+        align-items: start; }}
+table.data {{ border-collapse: collapse; width:100%; font-size:7.2pt; }}
 table.data caption {{ font-weight:bold; font-size:8.2pt; margin-bottom:3px; }}
 table.data th, table.data td {{ border:1px solid #999; padding:1px 4px;
         text-align:center; }}
@@ -161,15 +182,15 @@ h3.code-title {{ font-family:monospace; font-size:9pt; background:#222;
 
 <section class="page">
   <h2 class="annex">Anexo I — Tabelas e Gráficos</h2>
-  <div class="grid2">
-    {table(strong, "Tabela 1 — Escala forte (800×600, MAX_ITER=10000)")}
-    {table(weak, "Tabela 2 — Escala fraca (carga ∝ N)")}
+  <div class="tables">
+    {table(strong, "Tabela 1 — Escala forte (800×600, MAX_ITER=10000 fixo)")}
+    {table_weak(weak, "Tabela 2 — Escala fraca (carga = 10000×N iterações)")}
   </div>
   <div class="figs">
     <div><img src="fig_strong_speedup.png"><div class="figcap">Fig. 1 — Speed-up (escala forte)</div></div>
     <div><img src="fig_strong_eff.png"><div class="figcap">Fig. 2 — Eficiência (escala forte)</div></div>
     <div><img src="fig_weak_speedup.png"><div class="figcap">Fig. 3 — Speed-up (escala fraca)</div></div>
-    <div><img src="fig_weak_time.png"><div class="figcap">Fig. 4 — Tempo de execução (escala fraca)</div></div>
+    <div><img src="fig_weak_eff.png"><div class="figcap">Fig. 4 — Eficiência (escala fraca)</div></div>
   </div>
 </section>
 
